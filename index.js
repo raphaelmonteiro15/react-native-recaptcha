@@ -8,20 +8,33 @@ const RECAPTCHA_SUB_STR_FRAME="https://www.google.com/recaptcha/api2/bframe";
 
 export const type = Object.freeze({"invisible": 1, "normal": 2});
 
-const getInvisibleRecaptchaContent = (siteKey, action, onReady) => {
-    const webForm = '<!DOCTYPE html><html><head> ' +
-    '<style>  .text-xs-center { text-align: center; } .g-recaptcha { display: inline-block; } </style> ' +
-    '<script src="https://www.google.com/recaptcha/enterprise.js?render=' + siteKey + '"></script> ' +
-    '<script type="text/javascript"> ' +
-    'grecaptcha.ready(function() { ' +
-        `(${String(onReady)})(); ` +
-        'grecaptcha.execute(\'' + siteKey + '\', {action: \'' + action + '\'}).then( '+
-            'function (responseToken) { window.postMessage(responseToken);  } ' +
-        ' ); ' +
-    '}); ' +
-    '</script>' +
-    '</head></html>';
-    return webForm;
+const getInvisibleRecaptchaContent = (siteKey, action, onReady, useEnterprise) => {
+    if (useEnterprise) {
+        return '<!DOCTYPE html><html><head> ' +
+        '<style>  .text-xs-center { text-align: center; } .g-recaptcha { display: inline-block; } </style> ' +
+        '<script src="https://www.google.com/recaptcha/enterprise.js?render=' + siteKey + '"></script> ' +
+        '<script type="text/javascript"> ' +
+        'grecaptcha.ready(function() { ' +
+            `(${String(onReady)})(); ` +
+            'grecaptcha.execute(\'' + siteKey + '\', {action: \'' + action + '\'}).then( '+
+                'function (responseToken) { window.postMessage(responseToken);  } ' +
+            ' ); ' +
+        '}); ' +
+        '</script>' +
+        '</head></html>';
+    }
+    return '<!DOCTYPE html><html><head> ' +
+        '<style>  .text-xs-center { text-align: center; } .g-recaptcha { display: inline-block; } </style> ' +
+        '<script src="https://www.google.com/recaptcha/api.js?render=' + siteKey + '"></script> ' +
+        '<script type="text/javascript"> ' +
+        'grecaptcha.ready(function() { ' +
+            `(${String(onReady)})(); ` +
+            'grecaptcha.execute(\'' + siteKey + '\', {action: \'' + action + '\'}).then( '+
+                'function (responseToken) { window.postMessage(responseToken);  } ' +
+            ' ); ' +
+        '}); ' +
+        '</script>' +
+        '</head></html>';
 }
 
 const getNormalRecaptchaContent = (config) => {
@@ -46,6 +59,8 @@ const getNormalRecaptchaContent = (config) => {
 }
 
 export default class ReCaptcha extends Component {
+    
+    
 
     static propTypes = {
         onMessage: PropTypes.func,
@@ -115,6 +130,7 @@ export default class ReCaptcha extends Component {
             action,
             onReady,
             onExecute,
+            useEnterprise,
             config,
             reCaptchaType,
             url
@@ -128,7 +144,7 @@ export default class ReCaptcha extends Component {
                 containerStyle={containerStyle}
                 onMessage={(message) => onExecute(message)}
                 source={{
-                    html: reCaptchaType == type.invisible ? getInvisibleRecaptchaContent(siteKey, action, onReady) :
+                    html: reCaptchaType == type.invisible ? getInvisibleRecaptchaContent(siteKey, action, onReady, useEnterprise) :
                                 getNormalRecaptchaContent(config),
                     baseUrl: url
                 }}
