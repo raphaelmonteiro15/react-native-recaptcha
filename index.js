@@ -11,7 +11,7 @@ export const type = Object.freeze({"invisible": 1, "normal": 2});
 const getInvisibleRecaptchaContent = (siteKey, action, onReady) => {
     const webForm = '<!DOCTYPE html><html><head> ' +
     '<style>  .text-xs-center { text-align: center; } .g-recaptcha { display: inline-block; } </style> ' +
-    '<script src="https://www.google.com/recaptcha/api.js?render=' + siteKey + '"></script> ' +
+    '<script src="https://www.google.com/recaptcha/enterprise.js?render=' + siteKey + '"></script> ' +
     '<script type="text/javascript"> ' +
     'grecaptcha.ready(function() { ' +
         `(${String(onReady)})(); ` +
